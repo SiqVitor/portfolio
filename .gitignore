@@ -2,3 +2,16 @@
 **/Data/
 *.csv
 *.ipynb_checkpoints
+
+# Model artefacts
+**/artefacts/
+*.joblib
+*.pkl
+
+# Python
+__pycache__/
+*.egg-info/
+.ruff_cache/
+
+# Evidently reports
+**/evidently_reports/

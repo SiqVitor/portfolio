@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=65.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ds_tools"
+version = "0.1.0"
+description = "Reusable Data Science & Machine Learning toolkit — custom sklearn transformers, evaluation reports, drift monitoring, and SHAP visualizations."
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Vitor de Siqueira Rodrigues"}]
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scikit-learn>=1.3",
+    "matplotlib>=3.7",
+    "shap>=0.43",
+    "scipy>=1.10",
+]
+
+[project.optional-dependencies]
+monitoring = ["evidently>=0.4"]
+dev = ["pytest>=7.0", "ruff>=0.4"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

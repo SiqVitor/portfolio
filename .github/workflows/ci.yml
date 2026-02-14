@@ -1,0 +1,50 @@
+name: CI — Lint, Test, Smoke Demo
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          pip install -e ds_tools/
+          pip install lightgbm>=4.0 matplotlib>=3.7 pytest>=7.0 ruff>=0.4
+
+      - name: Lint (ruff)
+        run: ruff check "Fraud Detection/demo/" "End to End GenAI Agent/demo/" realtime_ml_system/demo/ ml_platform/demo/ tests/
+
+      - name: Unit tests
+        run: pytest tests/test_basic.py -v
+
+      - name: Smoke demo — fraud
+        run: |
+          python "Fraud Detection/demo/generate_synthetic.py"
+          python "Fraud Detection/demo/train_model.py"
+          test -f "Fraud Detection/demo/results/summary.json"
+
+      - name: Smoke demo — argus eval
+        run: |
+          python "End to End GenAI Agent/demo/mock_evaluator.py"
+          test -f "End to End GenAI Agent/demo/results/eval_report.json"
+
+      - name: Smoke demo — realtime ml system
+        run: |
+          python realtime_ml_system/demo/online_inference.py
+          test -f realtime_ml_system/demo/results/summary.json
+
+      - name: Smoke demo — ml platform
+        run: |
+          python ml_platform/demo/pipeline.py
+          test -f ml_platform/demo/results/metrics.json

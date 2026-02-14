@@ -1,23 +1,66 @@
-# Public Projects
+# Vitor Rodrigues — ML Engineering Portfolio
 
-Selected projects by Vitor de Siqueira Rodrigues — Data Scientist / ML Engineer.
+**Senior Machine Learning Engineer** — fraud prevention, GenAI agents, production ML systems.
 
-## Projects
+## TL;DR
 
-### [End-to-End Fraud Detection](Fraud%20Detection/)
-Production-grade fraud detection pipeline on the PaySim dataset (6.3 M mobile-money transactions). Time-based train/val/test split, balance-discrepancy feature engineering, five-model comparison (LR, RF, LightGBM, XGBoost, CatBoost) with `RandomizedSearchCV`, probability-calibration analysis (Brier Score, ECE, reliability curves), SHAP interpretability, hard-sample log-loss analysis, threshold optimisation, simulated data-drift monitoring (PSI, KS, Evidently AI), and a FastAPI serving endpoint.
+- **Fraud prevention at scale**: Designed and deployed end-to-end ML pipelines (LightGBM, PyTorch with entity embeddings) processing 200M+ rows/month at Mercado Livre. Savings of $30k–$50k USD/month in prevented chargebacks and account takeovers.
+- **GenAI agent automation**: Built an autonomous agent framework (LangChain/LangGraph) to automate ATO report review, reducing manual workload by 70% and freeing 15–20 analysts.
+- **Production ML ownership**: Full lifecycle — BigQuery/Databricks ingestion, MLflow experiment tracking and model registry, Docker containerised deployment (GCP Vertex AI), Prometheus/Grafana monitoring, canary rollout with automated rollback.
 
-### [ds_tools — Reusable ML Toolkit](ds_tools/)
-Installable Python package (`pip install -e ds_tools/`) with sklearn-compatible transformers (`FrequencyEncoder`, `OutlierClipper`, `BalanceDeltaTransformer`), a one-call `ClassificationEvaluator` (ROC, PR, calibration, confusion matrix, hard-sample analysis), SHAP visualisation helpers, and data-drift detection utilities (PSI, KS test, simulated drift, multi-feature drift reports).
+## Tech Stack
 
-### [End-to-End GenAI Agent (ARGUS)](End%20to%20End%20GenAI%20Agent/)
-Multi-agent system built with LangGraph for automated research, data analysis, and document-grounded Q&A. Features hybrid RAG retrieval, streaming responses, and an automated evaluation pipeline. Stack: Python, LangGraph, LangChain, FastAPI, ChromaDB, PostgreSQL, Redis, Streamlit.
+| Area | Tools |
+|------|-------|
+| ML / DL | scikit-learn, LightGBM, XGBoost, CatBoost, PyTorch (DDP, AMP, TorchScript, ONNX) |
+| GenAI | LangChain, LangGraph, RAG (ChromaDB), Groq/Llama 3 |
+| Data | Python, SQL, BigQuery, Azure Databricks, pandas, NumPy |
+| MLOps | MLflow (tracking + registry), Docker, GCP Vertex AI, CI/CD |
+| Monitoring | Prometheus, Grafana, Evidently AI, PSI/KS drift detection |
+| Serving | FastAPI, containerised endpoints, canary rollout |
 
-### [Kaggle — House Prices: Advanced Regression Techniques](Hands%20On%20Statistics%20and%20Kaggle/)
-Tabular regression on the Ames Housing dataset. Log-target transform, `InteractionFeatures` via sklearn `Pipeline` + `ColumnTransformer` for leak-free preprocessing. Six-model cross-validated comparison (Ridge, Lasso, ElasticNet, Random Forest, Gradient Boosting, SVR) with `RandomizedSearchCV` tuning and a `StackingRegressor` ensemble. Kaggle RMSLE **0.12279** — top 12.5% on the leaderboard.
+## Case Studies
 
-### [Kaggle — Titanic: Machine Learning from Disaster](Hands%20On%20Statistics%20and%20Kaggle/)
-Binary classification with domain-driven feature engineering (title extraction, family size, cabin deck, fare-per-person, ticket frequency). Six-model baseline (Logistic Regression, Random Forest, Gradient Boosting, SVM, XGBoost, LightGBM), `GridSearchCV` hyperparameter tuning, and `VotingClassifier` / `StackingClassifier` ensembles. Best CV accuracy **0.8574** (Tuned GBC).
+| Project | Summary | Demo |
+|---------|---------|------|
+| [Fraud Detection](fraud_detection/) | End-to-end fraud pipeline: IEEE-CIS + synthetic data, LightGBM, PyTorch, calibration, monitoring | `bash fraud_detection/demo/run_demo.sh` |
+| [ARGUS — GenAI Agent](genai_agent/) | Multi-agent RAG system with citation evaluation (WIP) | `bash genai_agent/demo/run_local_eval.sh` |
+| [Real-Time ML System](realtime_ml_system/) | Online inference pipeline: streaming features, latency tracking, batch/online separation | `bash realtime_ml_system/demo/run_demo.sh` |
+| [ML Platform](ml_platform/) | ML lifecycle orchestration: validation → training → evaluation → model registry | `bash ml_platform/demo/run_pipeline.sh` |
 
-### [Practical Statistics for Data Scientists](Hands%20On%20Statistics%20and%20Kaggle/)
-Applied exercises from the O'Reilly book (Bruce, Bruce & Gedeck). Covers estimates of location and variability, weighted metrics, percentile analysis, and distributional diagnostics with annotated visualizations.
+### Supporting Projects
+
+| Project | Description |
+|---------|-------------|
+| [ds_tools](ds_tools/) | Reusable ML toolkit — sklearn transformers, evaluation reports, drift monitoring |
+| [Kaggle Competitions](kaggle/) | House Prices (top 12.5%), Titanic, applied statistics |
+
+## Run a 10-Minute Demo
+
+```bash
+# Option 1: Docker (recommended — nothing to install)
+docker build -t portfolio-demo .
+docker run --rm portfolio-demo
+
+# Option 2: Local Python (requires Python 3.10+)
+pip install -e ds_tools/ && pip install lightgbm matplotlib
+bash fraud_detection/demo/run_demo.sh
+bash realtime_ml_system/demo/run_demo.sh
+bash ml_platform/demo/run_pipeline.sh
+```
+
+**Expected outputs:**
+- `fraud_detection/demo/results/summary.json` — ROC-AUC, Brier Score, ECE, classification report
+- `realtime_ml_system/demo/results/summary.json` — latency p50/p95/p99, throughput, online AUC
+- `ml_platform/demo/results/metrics.json` — champion model, validation report, registered version
+
+## Documentation
+
+| Document | Audience |
+|----------|----------|
+| [architecture.md](architecture.md) | Technical interviewers — cross-project design patterns |
+| [model_card_template.md](model_card_template.md) | ML governance — fillable model card |
+
+---
+
+Built by **Vitor de Siqueira Rodrigues** · [LinkedIn](https://linkedin.com/in/r-vitor) · [GitHub](https://github.com/SiqVitor)

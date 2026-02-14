@@ -15,3 +15,18 @@ __pycache__/
 
 # Evidently reports
 **/evidently_reports/
+
+# Demo results (generated outputs)
+Fraud Detection/demo/results/
+End to End GenAI Agent/demo/results/
+realtime_ml_system/demo/results/
+ml_platform/demo/results/
+
+# Environment variables
+*.env
+*.pdf
+
+# Private / Internal files
+exec_summary.md
+interview_talking_points.md
+missing_items.md

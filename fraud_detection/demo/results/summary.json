@@ -1,0 +1,17 @@
+{
+  "model": "LightGBM",
+  "dataset": "synthetic (10,000 transactions, 5% fraud)",
+  "train_size": 8000,
+  "test_size": 2000,
+  "metrics": {
+    "ROC-AUC": 0.999816,
+    "Average Precision": 0.99667,
+    "Log Loss": 0.008427,
+    "Brier Score": 0.002254,
+    "ECE": 0.001688
+  },
+  "artifacts": [
+    "calibration_curve.png",
+    "summary.json"
+  ]
+}

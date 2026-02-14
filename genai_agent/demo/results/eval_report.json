@@ -1,0 +1,43 @@
+{
+  "mode": "mock (no API keys)",
+  "n_queries": 5,
+  "avg_faithfulness": 1.0,
+  "avg_citation_accuracy": 1.0,
+  "per_query": [
+    {
+      "query_id": "q1",
+      "question": "What was the company's revenue in Q3?",
+      "faithfulness": 1.0,
+      "citation_accuracy": 1.0,
+      "response_preview": "The company's revenue in Q3 was $12.5M, representing a 15% year-over-year increase. [Source 1]"
+    },
+    {
+      "query_id": "q2",
+      "question": "How many employees does the company have?",
+      "faithfulness": 1.0,
+      "citation_accuracy": 1.0,
+      "response_preview": "The company has 450 employees as of December. [Source 2]"
+    },
+    {
+      "query_id": "q3",
+      "question": "What is the main product?",
+      "faithfulness": 1.0,
+      "citation_accuracy": 1.0,
+      "response_preview": "The main product is a payment processing platform. [Source 1]"
+    },
+    {
+      "query_id": "q4",
+      "question": "What markets does the company operate in?",
+      "faithfulness": 1.0,
+      "citation_accuracy": 1.0,
+      "response_preview": "The company operates in Brazil, Argentina, Mexico, and Chile. [Source 1]"
+    },
+    {
+      "query_id": "q5",
+      "question": "Who is the CEO?",
+      "faithfulness": 1.0,
+      "citation_accuracy": 1.0,
+      "response_preview": "I could not find information about the CEO in the provided documents."
+    }
+  ]
+}

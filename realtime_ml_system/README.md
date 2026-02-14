@@ -87,6 +87,6 @@ bash realtime_ml_system/demo/run_demo.sh
 
 ## Related Files
 
-- [Architecture decisions](architecture.md) — online vs batch, feature freshness, failure modes
-- [Monitoring strategy](monitoring.md) — signals, thresholds, alert escalation
+- [Architecture decisions](docs/architecture.md) — online vs batch, feature freshness, failure modes
+- [Monitoring strategy](docs/monitoring.md) — signals, thresholds, alert escalation
 - [Fraud case study](../fraud_detection/) — end-to-end fraud detection pipeline

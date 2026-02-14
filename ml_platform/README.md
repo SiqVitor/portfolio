@@ -90,6 +90,6 @@ bash ml_platform/demo/run_pipeline.sh
 
 ## Related Files
 
-- [Architecture decisions](architecture.md) — experiment lifecycle, governance, retraining triggers
-- [Monitoring strategy](monitoring.md) — pipeline health, model quality, business impact
+- [Architecture decisions](docs/architecture.md) — experiment lifecycle, governance, retraining triggers
+- [Monitoring strategy](docs/monitoring.md) — pipeline health, model quality, business impact
 - [ds_tools](../ds_tools/) — reusable evaluation and preprocessing toolkit

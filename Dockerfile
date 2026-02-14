@@ -16,7 +16,7 @@ RUN pip install --no-cache-dir -r requirements.txt && \
 # Copy only necessary folders for the Agent
 COPY genai_agent/ genai_agent/
 COPY ds_tools/ ds_tools/
-COPY .env .
+COPY .env* .
 COPY README.md .
 COPY requirements.txt .
 

@@ -10,6 +10,9 @@ lightgbm>=4.0
 xgboost>=2.0
 catboost>=1.2
 
+# Deep Learning (install CUDA version for GPU: pip install torch --index-url https://download.pytorch.org/whl/cu121)
+torch>=2.0
+
 # Interpretability
 shap>=0.43
 
@@ -23,5 +26,8 @@ uvicorn>=0.29
 # Data download
 kagglehub>=0.3
 
-# Local toolkit (install separately: pip install -e ../ds_tools)
-# ds_tools
+# Local toolkit
+-e ../ds_tools
+
+# Jupyter widgets (for notebook interactivity)
+ipywidgets>=8.0

@@ -31,3 +31,9 @@ kagglehub>=0.3
 
 # Jupyter widgets (for notebook interactivity)
 ipywidgets>=8.0
+
+# Optional / tooling used in notebook and serving
+boostaroota>=1.0
+optuna>=3.0
+skorch>=0.12
+joblib>=1.2

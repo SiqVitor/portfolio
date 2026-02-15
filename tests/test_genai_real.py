@@ -1,5 +1,7 @@
-from genai_agent.src.engine import ArgusEngine
 from unittest.mock import MagicMock, patch
+
+from genai_agent.src.engine import ArgusEngine
+
 
 @patch("google.generativeai.configure")
 @patch("google.generativeai.GenerativeModel")

@@ -1,5 +1,7 @@
-from realtime_ml_system.demo.online_inference import MetricsLogger
 import sqlite3
+
+from realtime_ml_system.demo.online_inference import MetricsLogger
+
 
 def test_sqlite_logging_and_percentiles(tmp_path):
     """Test that inference metrics are logged to SQLite and percentiles are correct."""

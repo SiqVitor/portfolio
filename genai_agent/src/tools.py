@@ -98,20 +98,18 @@ def analyze_csv(file_path: str) -> str:
             stats = df.describe().to_dict()
             msg = f"(Sampled! Total rows: {row_count}. Showing first/last 10 rows for context.)"
         else:
-            sample_head = df.head(5).to_dict(orient='records')
-            sample_tail = None
+            sample_head = df.to_dict(orient='records')
+            sample_tail = []
             stats = df.describe().to_dict()
-            msg = f"(Full scan. Total rows: {row_count}.)"
+            msg = f"(Full dataset loaded. Total rows: {row_count}.)"
 
-        summary = {
-            "available_columns": cols,
-            "row_count": row_count,
-            "sample_head": sample_head,
-            "sample_tail": sample_tail,
-            "numerical_statistics": stats,
-            "efficiency_note": msg
-        }
-        return f"--- DATA REPORT: {file_path} ---\n{msg}\nColumns: {cols}\nSummary: {summary}\n--- END OF REPORT ---"
+        return (f"--- DATA ANALYSIS REPORT: {file_path} ---\n"
+                f"{msg}\n\n"
+                f"### 1. Structure\n- Columns: {cols}\n- Rows: {row_count}\n\n"
+                f"### 2. Statistics (Numerical)\n{json.dumps(stats, indent=2)}\n\n"
+                f"### 3. Data Sample (Head)\n{json.dumps(sample_head, indent=2)}\n\n"
+                f"### 4. Data Sample (Tail)\n{json.dumps(sample_tail, indent=2)}\n"
+                f"--- END OF REPORT ---")
     except Exception as e:
         return f"Error reading CSV: {str(e)}"
 

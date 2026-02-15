@@ -161,7 +161,7 @@ class ArgusEngine:
                 # Basic cleanup
                 url = url.rstrip('.,;)')
                 content = fetch_url_content(url)
-                injection += f"\n{content}\n"
+                injection += f"\n\n[SYSTEM: I have successfully fetched the following external link. Use this information to answer the user.]\n{content}\n"
 
         modified_query = sanitized_query
         # CSV Detection

@@ -1,6 +1,7 @@
 import math
 import os
 import requests
+import json
 import pandas as pd
 from bs4 import BeautifulSoup
 from pypdf import PdfReader
@@ -27,6 +28,34 @@ def fetch_url_content(url: str) -> str:
         # 3. Parse HTML
         soup = BeautifulSoup(response.text, 'html.parser')
 
+        # 3.1 Next.js / SPA Handling
+        # Many modern sites (iFood, Vercel apps) store data in a JSON script tag
+        next_data = soup.find("script", {"id": "__NEXT_DATA__"})
+        extra_content = ""
+        if next_data:
+            try:
+                data = json.loads(next_data.string)
+                # Recursively find long strings in the JSON (likely content)
+                def extract_strings(obj, min_len=100):
+                    text_parts = []
+                    if isinstance(obj, dict):
+                        for k, v in obj.items():
+                            text_parts.extend(extract_strings(v, min_len))
+                    elif isinstance(obj, list):
+                        for item in obj:
+                            text_parts.extend(extract_strings(item, min_len))
+                    elif isinstance(obj, str) and len(obj) > min_len:
+                        # Clean html tags if present
+                        clean_text = BeautifulSoup(obj, 'html.parser').get_text(separator=' ', strip=True)
+                        text_parts.append(clean_text)
+                    return text_parts
+
+                found_texts = extract_strings(data.get("props", {}).get("pageProps", {}))
+                if found_texts:
+                    extra_content = "\n\n[HIDDEN CONTENT EXTRACTED FROM APP DATA]:\n" + "\n".join(found_texts[:5]) # Limit to top 5 chunks
+            except:
+                pass
+
         # Remove scripts, styles, nav, footer
         for script in soup(["script", "style", "nav", "footer", "header", "iframe", "noscript", "svg"]):
             script.decompose()
@@ -35,6 +64,9 @@ def fetch_url_content(url: str) -> str:
 
         # Clean up whitespace
         text = " ".join(text.split())
+
+        # Append extra content found in JSON
+        text += extra_content
 
         # Limit content size
         if len(text) > 12000:
@@ -136,40 +168,90 @@ def calculate_metric(expression: str) -> str:
     except Exception as e:
         return f"Error calculating metric: {str(e)}"
 
+def generate_code_map(root_dir: str) -> str:
+    """Scans Python files to generate an AST-based architectural summary."""
+    summary = []
+
+    for root, _, files in os.walk(root_dir):
+        for file in files:
+            if file.endswith(".py") and "test" not in file:
+                path = os.path.join(root, file)
+                rel_path = os.path.relpath(path, root_dir)
+
+                try:
+                    with open(path, "r", encoding="utf-8") as f:
+                        tree = ast.parse(f.read())
+
+                    file_summary = [f"\n📄 File: {rel_path}"]
+
+                    for node in ast.walk(tree):
+                        if isinstance(node, ast.ClassDef):
+                            file_summary.append(f"  class {node.name}")
+                            for sub in node.body:
+                                if isinstance(sub, ast.FunctionDef):
+                                    doc = ast.get_docstring(sub) or ""
+                                    doc_line = doc.split('\n')[0] if doc else ""
+                                    file_summary.append(f"    def {sub.name}: {doc_line}")
+                        elif isinstance(node, ast.FunctionDef) and isinstance(node.parent, ast.Module):
+                             # Top level functions (hacky check, simplistic)
+                             pass
+
+                    # Simplistic AST walk doesn't track parent easily,
+                    # so let's stick to a cleaner iteration for top-level
+
+                    file_structure = []
+                    for node in tree.body:
+                        if isinstance(node, ast.ClassDef):
+                            methods = []
+                            for item in node.body:
+                                if isinstance(item, ast.FunctionDef):
+                                    doc = ast.get_docstring(item)
+                                    desc = f" ({doc.split('.')[0]})" if doc else ""
+                                    methods.append(f"{item.name}{desc}")
+                            file_structure.append(f"  📦 Class {node.name}: {', '.join(methods)}")
+                        elif isinstance(node, ast.FunctionDef):
+                             doc = ast.get_docstring(node)
+                             desc = f" ({doc.split('.')[0]})" if doc else ""
+                             file_structure.append(f"  ⚡ Func {node.name}{desc}")
+
+                    if file_structure:
+                        summary.extend(file_summary[:1] + file_structure)
+
+                except Exception as e:
+                    summary.append(f"  ⚠️ Error parsing {rel_path}: {e}")
+
+    return "\n".join(summary)
+
 def search_repo_context() -> str:
-    """Generates a map of the repository structure and summary of project READMEs."""
+    """Generates a map of the repository structure and architectural summary."""
     ignore_dirs = [".git", "__pycache__", "node_modules", ".venv", "venv", ".gemini", "brain"]
     base_path = "."
     tree = []
     readme_summaries = ""
 
-    # Check for folders in root
+    # 1. Generate File Tree
     for root, dirs, files in os.walk(base_path):
-        # Filter hidden/ignore dirs
         dirs[:] = [d for d in dirs if d not in ignore_dirs and not d.startswith('.')]
-
         level = root.replace(base_path, '').count(os.sep)
         indent = ' ' * 4 * level
         tree.append(f"{indent}{os.path.basename(root)}/")
-
         sub_indent = ' ' * 4 * (level + 1)
         for f in files:
             if not f.startswith('.'):
-                tree.append(f"{sub_indent}{f}")
-
-            # Index README content
+                 tree.append(f"{sub_indent}{f}")
             if f.lower() == "readme.md":
                 try:
                     with open(os.path.join(root, f), 'r', encoding='utf-8') as rf:
-                        content = rf.read(500) # Get first 500 chars as summary
-                        readme_summaries += f"\n--- README in {root} ---\n{content}...\n"
-                except:
-                    pass
+                         readme_summaries += f"\n--- README in {root} ---\n{rf.read(2000)}...\n"
+                except: pass
+
+    # 2. Generate Code Architecture (AST)
+    code_map = generate_code_map(".")
 
     repo_map = "\n".join(tree)
     github_context = "Public Repository URL: https://github.com/SiqVitor/public_projects (Contains full source code for 'genai_agent' and other portfolio items)."
 
-    return f"Project Structure (Local Access):\n{repo_map}\n\n{github_context}\n\nProject README Summaries:\n{readme_summaries}"
+    return f"=== REPOSITORY STRUCTURE ===\n{repo_map}\n\n=== CODE ARCHITECTURE (Key Classes & Functions) ===\n{code_map}\n\n=== README SUMMARIES ===\n{readme_summaries}\n\n{github_context}"
 
 def lookup_operational_presence(country: str) -> str:
     """Mock database lookup for company operations."""

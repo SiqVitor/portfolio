@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import time
 from pathlib import Path
@@ -6,7 +7,7 @@ from datetime import datetime
 from typing import Generator, List, Dict
 from dotenv import load_dotenv
 from groq import Groq
-from genai_agent.src.tools import calculate_metric, lookup_operational_presence, analyze_csv, analyze_pdf, search_career_info, search_repo_context
+from genai_agent.src.tools import calculate_metric, lookup_operational_presence, analyze_csv, analyze_pdf, search_career_info, search_repo_context, fetch_url_content
 
 # Load .env from project root or genai_agent folder
 load_dotenv() # Default CWD
@@ -38,33 +39,43 @@ class ArgusEngine:
         ]
 
     def summarize_history(self):
-        """Summarizes the current chat history to keep context window manageable."""
-        # Llama 3.1 8B has a decent context, but we prune after 15 messages for responsiveness
-        if len(self.history) < 15:
+        """Summarizes the current chat history recursively to maintain context."""
+        # Relaxed pruning: Llama 3 has larger context, so we keep 30 turns
+        if len(self.history) < 30:
             return
 
         print("[*] Context window limit reached. Summarizing history...")
         system_msg = self.history[0]
-        recent_messages = self.history[-6:] # Keep last 3 turns
-        middle_messages = self.history[1:-6]
+        # Keep last 10 messages for immediate context flow
+        recent_messages = self.history[-10:]
+        # Identify messages to summarize (everything between system and recent)
+        middle_messages = self.history[1:-10]
 
         history_text = "\n".join([f"{msg['role']}: {msg['content']}" for msg in middle_messages])
-        summary_prompt = "Summarize the technical decisions and context of this conversation concisely: \n\n" + history_text
+
+        # Recursive instruction: Explicitly ask to merge previous summary if present
+        summary_prompt = (
+            "Compress the following conversation history into a concise technical summary. "
+            "If there is a previous summary, merge it with the new information. "
+            "Preserve key context, user goals, and technical details.\n\n"
+            + history_text
+        )
 
         try:
             summary_response = self.client.chat.completions.create(
                 model=self.model_name,
                 messages=[{"role": "user", "content": summary_prompt}],
                 temperature=0.1,
-                max_tokens=300
+                max_tokens=500 # Increased for better detail
             )
-            summary_text = f"[PRIOR CONTEXT SUMMARY]: {summary_response.choices[0].message.content.strip()}"
+            summary_text = f"[RECURSIVE CONTEXT SUMMARY]: {summary_response.choices[0].message.content.strip()}"
 
+            # Replace history: System + New Summary + Recent Messages
             self.history = [
                 system_msg,
-                {"role": "assistant", "content": "Acknowledged. I have indexed the previous context: " + summary_text}
+                {"role": "system", "content": summary_text} # Stored as system message for authority
             ] + recent_messages
-            print("[*] History successfully summarized.")
+            print("[*] History successfully summarized (recursively).")
         except Exception as e:
             print(f"[!] Summarization failed: {e}")
 
@@ -140,6 +151,17 @@ class ArgusEngine:
             if trigger_repo:
                 repo_context = search_repo_context()
                 injection += f"\n[REPO CONTEXT]: {repo_context}\n"
+
+        # 4. External Link Handler (New)
+        # Regex to find http/https URLs
+        urls = re.findall(r'https?://[^\s<>"]+|www\.[^\s<>"]+', sanitized_query)
+        if urls:
+            print(f"[*] URLs detected: {urls}")
+            for url in urls:
+                # Basic cleanup
+                url = url.rstrip('.,;)')
+                content = fetch_url_content(url)
+                injection += f"\n{content}\n"
 
         modified_query = sanitized_query
         # CSV Detection

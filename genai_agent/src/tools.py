@@ -1,7 +1,41 @@
 import math
 import os
+import requests
 import pandas as pd
+from bs4 import BeautifulSoup
 from pypdf import PdfReader
+
+def fetch_url_content(url: str) -> str:
+    """Fetches text content from a public URL. Gracefully handles walls."""
+    try:
+        # 1. Check for walled gardens (LinkedIn, etc)
+        blocked_domains = ["linkedin.com", "facebook.com", "twitter.com", "instagram.com"]
+        if any(domain in url.lower() for domain in blocked_domains):
+             return f"⚠️ Access Restricted: The URL {url} requires authentication or is a walled platform. Please export the page to PDF or copy-paste the text here."
+
+        # 2. Fetch content
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        response = requests.get(url, headers=headers, timeout=8)
+        response.raise_for_status()
+
+        # 3. Parse HTML
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Remove scripts, styles, nav, footer
+        for script in soup(["script", "style", "nav", "footer", "header", "iframe", "noscript"]):
+            script.decompose()
+
+        text = soup.get_text(separator=' ', strip=True)
+
+        # Limit content size
+        if len(text) > 8000:
+             text = text[:8000] + "... [Content Truncated]"
+
+        title = soup.title.string if soup.title else "No Title"
+        return f"--- EXTERNAL CONTENT: {url} (Title: {title}) ---\n{text}\n--- END OF CONTENT ---"
+
+    except Exception as e:
+        return f"⚠️ Error fetching URL: {str(e)}"
 
 def analyze_csv(file_path: str) -> str:
     """Reads a CSV and returns a sampled summary for the LLM to analyze."""

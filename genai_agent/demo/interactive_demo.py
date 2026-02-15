@@ -4,10 +4,9 @@
 Ensure GOOGLE_API_KEY is set in your .env file.
 """
 
+from genai_agent.src.engine import ArgusEngine
 import os
 import sys
-
-from genai_agent.src.engine import ArgusEngine
 
 def print_agent_box(text_generator):
     print("\n" + "="*50)

@@ -1,6 +1,5 @@
-import numpy as np
-
 from ml_platform.demo.pipeline import calculate_psi, select_champion
+import numpy as np
 
 def test_psi_calculation():
     """Test that PSI identifies drift between distributions."""

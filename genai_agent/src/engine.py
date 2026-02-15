@@ -169,26 +169,53 @@ class ArgusEngine:
         if ".csv" in sanitized_query.lower():
             parts = sanitized_query.split()
             path = next((p for p in parts if p.endswith(".csv")), None)
-            if path and os.path.exists(path):
-                context = analyze_csv(path)
+
+            # Logic to find the file
+            final_path = None
+            if path:
+                # 1. Check direct path
+                if os.path.exists(path):
+                    final_path = path
+                # 2. Check uploads folder
+                elif os.path.exists(os.path.join("genai_agent", "uploads", path)):
+                    final_path = os.path.join("genai_agent", "uploads", path)
+                elif os.path.exists(os.path.join("uploads", path)):
+                    final_path = os.path.join("uploads", path)
+
+            if final_path:
+                context = analyze_csv(final_path)
                 # Safeguard: Check file content for risk
                 if self.detect_risk_content(context):
                     yield "ERROR: Safety Protocol — The attached file contains content that violates safety guidelines."
                     return
-                modified_query = f"Based on this data: {context}\nUser Question: {sanitized_query}"
+                # Inject explicit system confirmation
+                injection += f"\n\n[SYSTEM: I have successfully read the CSV file at {final_path}. Use this data analysis:]\n{context}\n"
 
         # PDF Detection
         if ".pdf" in sanitized_query.lower():
             parts = sanitized_query.split()
             path = next((p for p in parts if p.endswith(".pdf")), None)
+
+            # Logic to find the file
+            final_path = None
+            if path:
+                # 1. Check direct path
+                if os.path.exists(path):
+                    final_path = path
+                # 2. Check uploads folder
+                elif os.path.exists(os.path.join("genai_agent", "uploads", path)):
+                    final_path = os.path.join("genai_agent", "uploads", path)
+                elif os.path.exists(os.path.join("uploads", path)):
+                    final_path = os.path.join("uploads", path)
+
             # Avoid re-reading the career pdfs which are handled by career RAG
-            if path and os.path.exists(path) and "cv_vitor" not in path.lower() and "linkedin" not in path.lower():
-                context = analyze_pdf(path)
+            if final_path and "cv_vitor" not in final_path.lower() and "linkedin" not in final_path.lower():
+                context = analyze_pdf(final_path)
                 # Safeguard: Check file content for risk
                 if self.detect_risk_content(context):
                     yield "ERROR: Safety Protocol — The attached file contains content that violates safety guidelines."
                     return
-                modified_query = f"Based on this PDF analysis: {context}\nUser Question: {sanitized_query}"
+                injection += f"\n\n[SYSTEM: I have successfully read the PDF file at {final_path}. Use this content:]\n{context}\n"
 
         # Combine for input
         final_user_content = f"{injection}\n<user_input>\n{modified_query}\n</user_input>"

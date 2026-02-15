@@ -68,6 +68,12 @@ def fetch_url_content(url: str) -> str:
         # Append extra content found in JSON
         text += extra_content
 
+        # 4. Success Validation
+        # If text is too short, it might be a JS-only site (SPA) that failed to scrape
+        if len(text) < 200 and not extra_content:
+             return (f"⚠️ SPA Detected: The URL {url} appears to be a Single Page Application that loads content via JavaScript. "
+                     f"I cannot scrape it directly. Please copy and paste the relevant text (e.g., job description) here so I can analyze it.")
+
         # Limit content size
         if len(text) > 12000:
              text = text[:12000] + "... [Content Truncated]"
@@ -76,7 +82,7 @@ def fetch_url_content(url: str) -> str:
         return f"--- EXTERNAL CONTENT: {url} (Title: {title}) ---\n{text}\n--- END OF CONTENT ---"
 
     except Exception as e:
-        return f"⚠️ Error fetching URL: {str(e)} (Note: Some complex sites like job boards may block automated access. Please copy/paste the text if this persists.)"
+        return f"⚠️ Error fetching URL: {str(e)} (Note: This site blocks automated access. Please copy/paste the text.)"
 
 def analyze_csv(file_path: str) -> str:
     """Reads a CSV and returns a sampled summary for the LLM to analyze."""

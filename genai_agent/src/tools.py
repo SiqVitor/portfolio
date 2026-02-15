@@ -9,33 +9,42 @@ def fetch_url_content(url: str) -> str:
     """Fetches text content from a public URL. Gracefully handles walls."""
     try:
         # 1. Check for walled gardens (LinkedIn, etc)
-        blocked_domains = ["linkedin.com", "facebook.com", "twitter.com", "instagram.com"]
+        blocked_domains = ["linkedin.com", "facebook.com", "instagram.com"]
         if any(domain in url.lower() for domain in blocked_domains):
              return f"⚠️ Access Restricted: The URL {url} requires authentication or is a walled platform. Please export the page to PDF or copy-paste the text here."
 
-        # 2. Fetch content
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-        response = requests.get(url, headers=headers, timeout=8)
+        # 2. Fetch content with browser-like headers
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Referer': 'https://www.google.com/'
+        }
+
+        response = requests.get(url, headers=headers, timeout=10)
         response.raise_for_status()
 
         # 3. Parse HTML
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Remove scripts, styles, nav, footer
-        for script in soup(["script", "style", "nav", "footer", "header", "iframe", "noscript"]):
+        for script in soup(["script", "style", "nav", "footer", "header", "iframe", "noscript", "svg"]):
             script.decompose()
 
         text = soup.get_text(separator=' ', strip=True)
 
+        # Clean up whitespace
+        text = " ".join(text.split())
+
         # Limit content size
-        if len(text) > 8000:
-             text = text[:8000] + "... [Content Truncated]"
+        if len(text) > 12000:
+             text = text[:12000] + "... [Content Truncated]"
 
         title = soup.title.string if soup.title else "No Title"
         return f"--- EXTERNAL CONTENT: {url} (Title: {title}) ---\n{text}\n--- END OF CONTENT ---"
 
     except Exception as e:
-        return f"⚠️ Error fetching URL: {str(e)}"
+        return f"⚠️ Error fetching URL: {str(e)} (Note: Some complex sites like job boards may block automated access. Please copy/paste the text if this persists.)"
 
 def analyze_csv(file_path: str) -> str:
     """Reads a CSV and returns a sampled summary for the LLM to analyze."""
@@ -158,7 +167,9 @@ def search_repo_context() -> str:
                     pass
 
     repo_map = "\n".join(tree)
-    return f"Project Structure:\n{repo_map}\n\nProject README Summaries:\n{readme_summaries}"
+    github_context = "Public Repository URL: https://github.com/SiqVitor/public_projects (Contains full source code for 'genai_agent' and other portfolio items)."
+
+    return f"Project Structure (Local Access):\n{repo_map}\n\n{github_context}\n\nProject README Summaries:\n{readme_summaries}"
 
 def lookup_operational_presence(country: str) -> str:
     """Mock database lookup for company operations."""

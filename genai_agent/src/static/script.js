@@ -152,9 +152,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     break;
                 }
 
-                fullText += chunk;
-                agentMsgDiv.innerHTML = formatAIResponse(fullText);
-                scrollToBottom();
+                // Typewriter Logic
+                // We split the chunk into characters and append them one by one
+                // utilizing a small delay to create the effect.
+                for (const char of chunk) {
+                    fullText += char;
+                    agentMsgDiv.innerHTML = formatAIResponse(fullText);
+                    scrollToBottom();
+                    // 5ms delay per character implies ~200 chars/sec (fast but readable)
+                    // Adjust this value to change typing speed
+                    await new Promise(resolve => setTimeout(resolve, 5));
+                }
             }
         } catch (err) {
             if (err.name === 'AbortError') {

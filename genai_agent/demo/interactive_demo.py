@@ -1,6 +1,6 @@
 """Interactive demo for ARGUS — GenAI Research & Analysis Agent.
 
-Now powered by a real LLM engine (Google Gemini).
+# Now powered by a real LLM engine (Groq / Llama 3.3).
 Ensure GOOGLE_API_KEY is set in your .env file.
 """
 

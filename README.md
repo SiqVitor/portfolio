@@ -45,7 +45,7 @@ Experience the transition from "demo mocks" to **real production logic** through
 3.  **Explore**: Open [http://localhost:7860](http://localhost:7860) in your browser.
 
 ### 🕹️ What to Test in the Workspace:
-1.  **ARGUS Chat**: Ask *"Analyze the trends in genai_agent/demo/test_expenses.csv"*. (Note: Requires Gemini API Key in `.env`).
+1.  **ARGUS Chat**: Ask *"Analyze the trends in genai_agent/demo/test_expenses.csv"*. (Note: Requires Groq API Key in `.env`).
 2.  **CSV Tooling**: Upload a personal CSV using the paperclip icon and ask ARGUS to summarize it.
 3.  **Pro Analysis**: Request complex interpretations of portfolio files or data patterns.
 4.  **Security Layer**: Experience integrated rate limiting and privacy disclosures.

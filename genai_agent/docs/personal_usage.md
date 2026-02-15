@@ -3,10 +3,10 @@
 ARGUS is designed to be a versatile Research & Analysis agent. Below are instructions on how to set it up and use it for your own personal use cases.
 
 ## 🚀 1. Setup
-1.  **API Key**: Obtain a Gemini API key from [Google AI Studio](https://aistudio.google.com/).
+1.  **API Key**: Obtain a Groq API key from [Groq Cloud](https://console.groq.com/).
 2.  **Environment**:
     - Copy `genai_agent/.env.example` to `genai_agent/.env`.
-    - Paste your key: `GOOGLE_API_KEY=your_actual_key_here`.
+    - Paste your key: `GROQ_API_KEY=your_actual_key_here`.
 3.  **Install Dependencies**:
     ```bash
     pip install -r genai_agent/requirements.txt

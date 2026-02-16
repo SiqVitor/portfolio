@@ -67,6 +67,8 @@ body::before {
     flex-direction: column;
     align-items: center;
     padding: 2vh 0;
+    position: relative;
+    z-index: 1;
 }
 
 /* Privacy Notice */
@@ -105,6 +107,13 @@ body::before {
     flex-direction: column;
     overflow: hidden;
     box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
+}
+
+/* Fallback for browsers without backdrop-filter (Firefox Linux without GPU) */
+@supports not (backdrop-filter: blur(1px)) {
+    .glass-container {
+        background: rgba(22, 22, 26, 0.95);
+    }
 }
 
 /* Header */

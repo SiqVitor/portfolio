@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isProcessing = false;
     let abortController = null;
 
-    // Reset session on page load
-    fetch('/reset', { method: 'POST' });
+    // Reset session on page load (non-blocking, safe to fail)
+    fetch('/reset', { method: 'POST' }).catch(() => { });
 
     // --- File Handling (CSV/PDF) ---
     csvUpload.addEventListener('change', async (e) => {

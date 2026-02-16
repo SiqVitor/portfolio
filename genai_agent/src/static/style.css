@@ -75,14 +75,15 @@ body::before {
 .privacy-notice {
     background: rgba(251, 113, 133, 0.1);
     border: 1px solid rgba(251, 113, 133, 0.2);
-    padding: 8px 16px;
+    padding: 6px 14px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: 11px;
     margin-bottom: 20px;
     display: flex;
-    gap: 12px;
+    align-items: center;
+    gap: 10px;
     color: var(--accent-error);
-    max-width: 800px;
+    max-width: 1000px;
     width: 90%;
     backdrop-filter: blur(5px);
 }
@@ -473,8 +474,11 @@ body::before {
         width: 100%;
         border-radius: 0;
         margin-bottom: 0;
-        padding: 10px 15px;
-        font-size: 11px;
+        padding: 6px 12px;
+        font-size: 10px;
+        text-align: center;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .glass-container {
